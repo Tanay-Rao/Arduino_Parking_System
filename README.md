@@ -18,6 +18,26 @@ This project implements a Smart Parking Management System using Arduino and vari
 - Buzzer for audio alerts (optional)
 - Jumper wires, breadboard, and other miscellaneous components
 
+## Digital Pin Configuration
+| Component                 | Pin Number |
+|---------------------------|------------|
+| HC-SR04 Sensor 1 (Trig)  | 5          |
+| HC-SR04 Sensor 1 (Echo)  | 6          |
+| HC-SR04 Sensor 2 (Trig)  | 7          |
+| HC-SR04 Sensor 2 (Echo)  | 8          |
+| HC-SR04 Sensor 3 (Trig)  | 9          |
+| HC-SR04 Sensor 3 (Echo)  | 10         |
+| Boom Barrier Entry (Trig) | 13         |
+| Boom Barrier Entry (Echo) | 12         |
+| Boom Barrier Exit (Trig)  | 11         |
+| Boom Barrier Exit (Echo)  | 4          |
+| Servo Motor               | 3          |
+
+## Libraries Used
+- `Wire.h`: For I2C communication with the LCD.
+- `LiquidCrystal_I2C.h`: To control the I2C LCD display.
+- `Servo.h`: To control the servo motor for the boom barrier.
+
 ## Getting Started
 1. **Wiring**: Connect the ultrasonic sensors and servo motor to the specified pins on the Arduino.
 2. **Upload the Code**: Use the Arduino IDE to upload the provided code to your Arduino UNO.
