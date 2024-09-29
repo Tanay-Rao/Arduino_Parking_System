@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
+#include <ArduinoJson.h> // Include the ArduinoJson library
 
 // Initialize LCD with the correct I2C address
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -11,7 +12,7 @@ Servo barrierServo;
 // Pin definitions
 const int ENTRYIR = 3; // IR sensor for entry
 const int INTRANSITIR = 2; // IR sensor for in-transit
-const int EXITIR = 4; // IR sensor for exit (added)
+
 
 // Parking spot sensors
 const int T1TRIG = 5;
@@ -54,7 +55,6 @@ void setup() {
   
   pinMode(ENTRYIR, INPUT); // Set the entry IR sensor pin
   pinMode(INTRANSITIR, INPUT); // Set the in-transit IR sensor pin
-  pinMode(EXITIR, INPUT); // Set the exit IR sensor pin (added)
 
   // Initialize the servo motor to closed position
   barrierServo.attach(4);
@@ -67,10 +67,12 @@ void displayLCD() {
   
   if (availableSpaces > 0) {
     lcd.print("Slot Left:");
-    if (!isCarParked[0]) lcd.print("1 ");
-    if (!isCarParked[1]) lcd.print("2 ");
-    if (!isCarParked[2]) lcd.print("3 ");
-    if (!isCarParked[3]) lcd.print("4 ");
+    for (int i = 0; i < TOTALPARKINGSPACES; i++) {
+      if (!isCarParked[i]) {
+        lcd.print(i + 1); // Show free slots
+        lcd.print(" ");
+      }
+    }
   } else {
     lcd.print("No Free Slots");
   }
@@ -167,22 +169,7 @@ void manageBoomBarrier(int ENTRYIR, int carsInside) {
   }
 }
 
-// Manage exit barrier logic
-void manageExitBarrier(int exitIR) {
-  // Logic for exit barrier
-  if (barrierState == 0 && exitIR == LOW) { // Exit signal LOW opens barrier
-    barrierServo.write(90); // Open barrier
-    barrierState = 1;
-    Serial.println("Car detected at exit. Opening barrier...");
-  }
-  
-  // Close barrier when car has passed
-  if (barrierState == 1 && exitIR == HIGH) { // Exit signal HIGH closes barrier
-    barrierServo.write(0); // Close barrier
-    barrierState = 0;
-    Serial.println("Closing exit barrier...");
-  }
-}
+
 
 void loop() {
   // Get sensor readings
@@ -193,7 +180,6 @@ void loop() {
   
   int entryIR = digitalRead(ENTRYIR); // IR sensor for entry
   int inTransitIR = digitalRead(INTRANSITIR); // IR sensor for in-transit
-  int exitIR = digitalRead(EXITIR); // IR sensor for exit (added)
 
   // Print sensor readings to Serial Monitor
   Serial.println("Sensor Readings:");
@@ -203,7 +189,6 @@ void loop() {
   Serial.print("Parking Sensor 4: "); Serial.print(d4); Serial.println(" cm");
   Serial.print("Entry IR Sensor: "); Serial.println(entryIR == LOW ? "Car Detected" : "No Car");
   Serial.print("In-Transit IR Sensor: "); Serial.println(inTransitIR == LOW ? "Car Detected" : "No Car");
-  Serial.print("Exit IR Sensor: "); Serial.println(exitIR == LOW ? "Car Detected" : "No Car"); // Added
   Serial.println("------------------------------");
 
   // Update parking status
@@ -218,10 +203,34 @@ void loop() {
   manageBoomBarrier(entryIR, carsInside);
   
   // Manage exit barrier
-  manageExitBarrier(exitIR);
 
   // Display on LCD
   displayLCD();
+
+  // Create JSON object
+  StaticJsonDocument<300> doc; // Adjust size as needed
+  doc["parking_sensor_1"] = d1;
+  doc["parking_sensor_2"] = d2;
+  doc["parking_sensor_3"] = d3;
+  doc["parking_sensor_4"] = d4;
+  doc["available_spaces"] = availableSpaces;
+  doc["cars_in_transit"] = carsInTransit;
+
+  // Create string for free slots
+  String freeSlots = "";
+  for (int i = 0; i < TOTALPARKINGSPACES; i++) {
+    if (!isCarParked[i]) {
+      freeSlots += String(i + 1) + " "; // Append free slot numbers
+    }
+  }
+  if (freeSlots.length() == 0) {
+    freeSlots = "None";
+  }
+  doc["free_slots"] = freeSlots; // Add free slots to JSON
+
+  // Serialize JSON and send to Serial
+  serializeJson(doc, Serial);
+  Serial.println(); // New line for clarity
   
-  delay(1000); // Refresh rate
+  delay(DELAYTIME);
 }
