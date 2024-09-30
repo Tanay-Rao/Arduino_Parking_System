@@ -1,7 +1,6 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
-#include <ArduinoJson.h> // Include the ArduinoJson library
 
 // Initialize LCD with the correct I2C address
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -12,7 +11,6 @@ Servo barrierServo;
 // Pin definitions
 const int ENTRYIR = 3; // IR sensor for entry
 const int INTRANSITIR = 2; // IR sensor for in-transit
-
 
 // Parking spot sensors
 const int T1TRIG = 5;
@@ -66,13 +64,11 @@ void displayLCD() {
   lcd.setCursor(0, 0);
   
   if (availableSpaces > 0) {
-    lcd.print("Slot Left:");
-    for (int i = 0; i < TOTALPARKINGSPACES; i++) {
-      if (!isCarParked[i]) {
-        lcd.print(i + 1); // Show free slots
-        lcd.print(" ");
-      }
-    }
+    lcd.print("Left:");
+    if (!isCarParked[0]) lcd.print("1 ");
+    if (!isCarParked[1]) lcd.print("2 ");
+    if (!isCarParked[2]) lcd.print("3 ");
+    if (!isCarParked[3]) lcd.print("4 ");
   } else {
     lcd.print("No Free Slots");
   }
@@ -169,6 +165,7 @@ void manageBoomBarrier(int ENTRYIR, int carsInside) {
   }
 }
 
+// Manage exit barrier logic
 
 
 void loop() {
@@ -180,6 +177,7 @@ void loop() {
   
   int entryIR = digitalRead(ENTRYIR); // IR sensor for entry
   int inTransitIR = digitalRead(INTRANSITIR); // IR sensor for in-transit
+  
 
   // Print sensor readings to Serial Monitor
   Serial.println("Sensor Readings:");
@@ -203,34 +201,10 @@ void loop() {
   manageBoomBarrier(entryIR, carsInside);
   
   // Manage exit barrier
+ 
 
   // Display on LCD
   displayLCD();
-
-  // Create JSON object
-  StaticJsonDocument<300> doc; // Adjust size as needed
-  doc["parking_sensor_1"] = d1;
-  doc["parking_sensor_2"] = d2;
-  doc["parking_sensor_3"] = d3;
-  doc["parking_sensor_4"] = d4;
-  doc["available_spaces"] = availableSpaces;
-  doc["cars_in_transit"] = carsInTransit;
-
-  // Create string for free slots
-  String freeSlots = "";
-  for (int i = 0; i < TOTALPARKINGSPACES; i++) {
-    if (!isCarParked[i]) {
-      freeSlots += String(i + 1) + " "; // Append free slot numbers
-    }
-  }
-  if (freeSlots.length() == 0) {
-    freeSlots = "None";
-  }
-  doc["free_slots"] = freeSlots; // Add free slots to JSON
-
-  // Serialize JSON and send to Serial
-  serializeJson(doc, Serial);
-  Serial.println(); // New line for clarity
   
-  delay(DELAYTIME);
+  delay(1000); // Refresh rate
 }
