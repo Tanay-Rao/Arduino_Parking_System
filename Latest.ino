@@ -9,18 +9,18 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 Servo barrierServo;
 
 // Pin definitions
-const int ENTRYIR = 3; // IR sensor for entry
-const int INTRANSITIR = 2; // IR sensor for in-transit
+const int ENTRYIR = 4; // IR sensor for entry
+const int INTRANSITIR = 3; // IR sensor for in-transit
 
 // Parking spot sensors
-const int T1TRIG = 5;
-const int T1ECHO = 6;            
-const int T2TRIG = 7; 
-const int T2ECHO = 8;           
-const int T3TRIG = 9;
-const int T3ECHO = 10;
-const int T4TRIG = 11;
-const int T4ECHO = 12;
+const int T1TRIG = 12;
+const int T1ECHO = 11;            
+const int T2TRIG = 10; 
+const int T2ECHO = 9;           
+const int T3TRIG = 8;
+const int T3ECHO = 7;
+const int T4TRIG = 6;
+const int T4ECHO = 5;
 
 const int TOTALPARKINGSPACES = 4; // Total parking available
 const int MAXINTRANSIT = TOTALPARKINGSPACES; // In-transit cars can't exceed 4
@@ -55,7 +55,7 @@ void setup() {
   pinMode(INTRANSITIR, INPUT); // Set the in-transit IR sensor pin
 
   // Initialize the servo motor to closed position
-  barrierServo.attach(4);
+  barrierServo.attach(13);
   barrierServo.write(0);  // 0 degrees = barrier closed
 }
   
