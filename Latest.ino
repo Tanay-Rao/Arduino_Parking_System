@@ -13,14 +13,14 @@ const int ENTRYIR = 4; // IR sensor for entry
 const int INTRANSITIR = 3; // IR sensor for in-transit
 
 // Parking spot sensors
-const int T1TRIG = 12;
-const int T1ECHO = 11;            
-const int T2TRIG = 10; 
-const int T2ECHO = 9;           
-const int T3TRIG = 8;
-const int T3ECHO = 7;
-const int T4TRIG = 6;
-const int T4ECHO = 5;
+const int T1TRIG = 11;
+const int T1ECHO = 12;            
+const int T2TRIG = 9; 
+const int T2ECHO = 10;           
+const int T3TRIG = 7;
+const int T3ECHO = 8;
+const int T4TRIG = 5;
+const int T4ECHO = 6;
 
 const int TOTALPARKINGSPACES = 4; // Total parking available
 const int MAXINTRANSIT = TOTALPARKINGSPACES; // In-transit cars can't exceed 4
